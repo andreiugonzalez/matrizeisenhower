@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-zinc-950 text-zinc-100 min-h-screen overflow-x-hidden;
+    /* Efecto sutil de gradiente radial para darle un toque premium */
+    background-image: radial-gradient(circle at 50% -20%, #17171a, #09090b);
+  }
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply bg-white/5 backdrop-blur-lg border border-white/10 shadow-2xl;
+  }
+}
