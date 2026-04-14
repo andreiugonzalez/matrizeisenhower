@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, User } from 'lucide-react';
 
-export default function Login({ onLogin }) {
+export default function Login({ onLogin, onSpectator }) {
   const [name, setName] = useState('');
 
   const handleSubmit = (e) => {
@@ -52,6 +52,14 @@ export default function Login({ onLogin }) {
               Comenzar
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={onSpectator}
+            className="w-full bg-white/5 border border-white/10 hover:bg-white/10 text-zinc-300 font-medium grid place-items-center rounded-xl py-3 transition-all mt-3"
+          >
+            Acceder como espectador
           </button>
         </form>
       </motion.div>

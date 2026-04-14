@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Clock, LayoutGrid } from 'lucide-react';
+import { ArrowLeft, Clock, LayoutGrid, X } from 'lucide-react';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 
@@ -28,6 +28,7 @@ const QuadrantColors = {
 export default function PublicWall({ userName, onBackToEditor }) {
   const [matrices, setMatrices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedDetail, setSelectedDetail] = useState(null);
 
   useEffect(() => {
     const q = query(collection(db, 'matrices'), orderBy('createdAt', 'desc'));
@@ -106,7 +107,15 @@ export default function PublicWall({ userName, onBackToEditor }) {
                   {['do', 'schedule', 'delegate', 'delete'].map(quadrant => {
                     const tasks = matrix[DBKeys[quadrant]] || (matrix.quadrants ? matrix.quadrants[quadrant] : []);
                     return (
-                    <div key={quadrant} className={`p-3 rounded-xl border ${QuadrantColors[quadrant]}`}>
+                    <div 
+                      key={quadrant} 
+                      onClick={() => setSelectedDetail({
+                        userName: matrix.nombreParticipante || matrix.userName || 'Usuario Anónimo',
+                        quadrantId: quadrant,
+                        tasks: tasks
+                      })}
+                      className={`p-3 rounded-xl border cursor-pointer hover:brightness-125 transition-all ${QuadrantColors[quadrant]}`}
+                    >
                       <h4 className="text-xs font-bold uppercase mb-2 opacity-80">{QuadrantTitles[quadrant]}</h4>
                       <ul className="space-y-1">
                         {tasks.map((task, i) => (
@@ -125,6 +134,57 @@ export default function PublicWall({ userName, onBackToEditor }) {
           </AnimatePresence>
         </div>
       )}
+
+      <AnimatePresence>
+        {selectedDetail && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSelectedDetail(null)}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={e => e.stopPropagation()}
+              className={`w-full max-w-lg rounded-2xl p-6 border shadow-2xl bg-zinc-900/95 backdrop-blur-md ${QuadrantColors[selectedDetail.quadrantId].split(' ')[1]} ${QuadrantColors[selectedDetail.quadrantId].split(' ')[2]}`}
+            >
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <h3 className={`text-2xl font-bold mb-1 ${QuadrantColors[selectedDetail.quadrantId].split(' ')[1]}`}>
+                    {QuadrantTitles[selectedDetail.quadrantId]}
+                  </h3>
+                  <p className="text-zinc-400">
+                    Matriz de: <span className="font-semibold text-white">{selectedDetail.userName}</span>
+                  </p>
+                </div>
+                <button 
+                  onClick={() => setSelectedDetail(null)}
+                  className="p-2 rounded-full hover:bg-white/10 text-zinc-400 hover:text-white transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                {selectedDetail.tasks.length === 0 ? (
+                  <p className="text-center italic text-zinc-500 py-4">No hay tareas en este cuadrante.</p>
+                ) : (
+                  <ul className="space-y-3">
+                    {selectedDetail.tasks.map((task, i) => (
+                      <li key={i} className="p-4 bg-black/40 rounded-xl whitespace-pre-wrap break-words text-zinc-200 border border-white/5">
+                        {task}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

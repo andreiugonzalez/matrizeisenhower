@@ -19,6 +19,11 @@ function App() {
     setView('wall');
   };
 
+  const handleSpectator = () => {
+    setUserName('');
+    setView('wall');
+  };
+
   return (
     <>
       <div className="fixed inset-0 pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay z-0" />
@@ -33,7 +38,7 @@ function App() {
               exit={{ opacity: 0, x: -30 }} 
               transition={{ duration: 0.4 }}
             >
-              <Login onLogin={handleLogin} />
+              <Login onLogin={handleLogin} onSpectator={handleSpectator} />
             </motion.div>
           )}
           {view === 'editor' && (
@@ -55,7 +60,7 @@ function App() {
               exit={{ opacity: 0, y: 30 }} 
               transition={{ duration: 0.4 }}
             >
-              <PublicWall userName={userName} onBackToEditor={() => setView('editor')} />
+              <PublicWall userName={userName} onBackToEditor={() => userName ? setView('editor') : setView('login')} />
             </motion.div>
           )}
         </AnimatePresence>
